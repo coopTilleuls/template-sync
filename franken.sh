@@ -31,7 +31,7 @@ do
     diff=$(git diff --diff-filter=d --shortstat "$actual_commit" "$sha")
     insertions=$(echo "$diff" | awk '{print $4}')
     deletions=$(echo "$diff" | awk '{print $6}')
-    sum=$insertions+$deletions
+    sum=$((insertions + deletions))
     echo "$sum"
 done
 
