@@ -14,16 +14,18 @@ cd "$temp_dir" || return
 
 api_shas=$(git log --pretty=format:"%H")
 
-for sha in $api_shas;
-do
-    diff=$(git diff "$initial_commit" "$sha")
-    if [ -z "$diff" ]; then
-    initial_api_commit=$sha
-    break
-    fi
-done
+echo "$api_shas"
 
-cd "$current_dir" || return
-pwd
-echo "$initial_api_commit"
+# for sha in $api_shas;
+# do
+#     diff=$(git diff "$initial_commit" "$sha")
+#     if [ -z "$diff" ]; then
+#     initial_api_commit=$sha
+#     break
+#     fi
+# done
+# 
+# cd "$current_dir" || return
+# pwd
+# echo "$initial_api_commit"
  
