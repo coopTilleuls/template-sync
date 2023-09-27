@@ -29,8 +29,8 @@ git switch test
 for sha in $api_shas;
 do
     diff=$(git diff --diff-filter=d --shortstat "$actual_commit" "$sha")
-    insertions=$("$diff" | awk '{print $4}')
-    deletions=$("$diff" | awk '{print $6}')
+    insertions=$(echo "$diff" | awk '{print $4}')
+    deletions=$(echo "$diff" | awk '{print $6}')
     sum=$insertions+$deletions
     echo "$sum"
 done
