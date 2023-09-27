@@ -1,8 +1,12 @@
 #!/bin/sh
 
-initial_commit=$(git rev-list "$(git rev-parse HEAD)" --max-parents==0)
+# initial_commit=$(git rev-list "$(git rev-parse HEAD)" --max-parents==0)
 
-echo initial project commit: "$initial_commit"
+# echo initial project commit: "$initial_commit"
+
+# //TODO CHECK IF git status are clean 
+
+actual_commit=$(git rev-parse HEAD)
 
 project_dir=$(pwd)
 
@@ -14,23 +18,25 @@ git clone https://github.com/api-platform/api-platform "$temp_dir"
 
 cd "$temp_dir" || return
 
+api_shas=$(git log --pretty=format:"%H")
+
 git remote add source "$project_dir"
 
 git fetch source "$current_branch":test
 
-api_shas=$(git log --pretty=format:"%H")
+git switch test
 
 for sha in $api_shas;
 do
-    diff=$(git diff "$initial_commit" "$sha")
-    if [ -z "$diff" ]; then
-    initial_api_commit=$sha
-    break
-    fi
+    diff=$(git diff --diff-filter=d --shortstat "$actual_commit" "$sha")
+    insertions=$("$diff" | awk '{print $4}')
+    deletions=$("$diff" | awk '{print $6}')
+    sum=$insertions+$deletions
+    echo "$sum"
 done
 
-git show "$initial_api_commit"
+# git show "$initial_api_commit"
 
-cd "$current_dir" || return
-pwd
+# cd "$current_dir" || return
+# pwd
  
