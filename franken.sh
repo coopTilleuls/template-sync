@@ -23,5 +23,7 @@ do
     fi
 done
 
+cd "$current_dir" || return
+pwd
 echo "$initial_api_commit"
  
