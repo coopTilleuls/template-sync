@@ -16,16 +16,18 @@ api_shas=$(git log --pretty=format:"%H")
 
 echo "$api_shas"
 
-# for sha in $api_shas;
-# do
-#     diff=$(git diff "$initial_commit" "$sha")
-#     if [ -z "$diff" ]; then
-#     initial_api_commit=$sha
-#     break
-#     fi
-# done
-# 
-# cd "$current_dir" || return
-# pwd
+for sha in $api_shas;
+do
+    diff=$(git diff "$initial_commit" "$sha")
+    if [ -z "$diff" ]; then
+    initial_api_commit=$sha
+    break
+    fi
+done
+
+git show "$initial_api_commit"
+
+cd "$current_dir" || return
+pwd
 # echo "$initial_api_commit"
  
