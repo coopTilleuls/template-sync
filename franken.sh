@@ -2,9 +2,11 @@
 
 initial_commit=$(git rev-list "$(git rev-parse HEAD)" --max-parents==0)
 
-echo $initial_commit 
+echo initial project commit: "$initial_commit"
 
-current_dir=$(pwd)
+project_dir=$(pwd)
+
+current_branch=$(git branch --show-current)
 
 temp_dir=$(mktemp -d)
 
@@ -12,9 +14,11 @@ git clone https://github.com/api-platform/api-platform "$temp_dir"
 
 cd "$temp_dir" || return
 
-api_shas=$(git log --pretty=format:"%H")
+git remote add source "$project_dir"
 
-echo "$api_shas"
+git fetch source "$current_branch":test
+
+api_shas=$(git log --pretty=format:"%H")
 
 for sha in $api_shas;
 do
@@ -29,5 +33,4 @@ git show "$initial_api_commit"
 
 cd "$current_dir" || return
 pwd
-# echo "$initial_api_commit"
  
