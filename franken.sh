@@ -18,7 +18,13 @@ cd "$temp_dir" || return
 mkdir template
 mkdir project
 mkdir template_modified
-git clone https://github.com/api-platform/api-platform template/
+
+if [ -z "$1" ]; then 
+echo Missing the template repository
+exit 1
+fi
+
+git clone "$1" template/
 git clone "$project_dir" project/
 
 cd template/ || return
