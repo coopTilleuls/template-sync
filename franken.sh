@@ -20,7 +20,7 @@ mkdir project
 mkdir template_modified
 
 if [ -z "$1" ]; then 
-echo Missing the template repository
+echo Missing first argument: url of the template repository
 exit 1
 fi
 
