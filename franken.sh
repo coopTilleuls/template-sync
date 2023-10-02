@@ -9,7 +9,7 @@ mkdir template
 mkdir project
 mkdir template_modified
 
-if [ -z "$1" ]; then 
+if [ -z "$1" ]; then
 echo Missing first argument: url of the template repository
 exit 1
 fi
@@ -41,7 +41,6 @@ do
 
     common_files=$(comm -12 "$tmpfile1" "$tmpfile2" | wc -l)
 
-    diff=$(git diff --shortstat --no-index --diff-filter=d -- project template_modified)
     ratio=$(echo "scale=4; $common_files / $total_template_modified_files" | bc)
     ratio_percent=$(printf "%.0f" "$(echo "$ratio * 100" | bc)")
 
@@ -52,14 +51,15 @@ do
     if [ "$ratio_percent" -gt "$ratioMax" ]; then
         ratioMax=$ratio_percent
     elif [ "$ratio_percent" -lt "$ratioMin" ]; then
-        ratioMin=$ratio_percent    
-    fi       
+        ratioMin=$ratio_percent
+    fi
     cd template/ || return
     index=$((index + 1))
 done
 
 ratioThreshold=$(echo "$ratioMax - ($ratioMax - $ratioMin) / 3" | bc)
 rm -rf ../template_modified/*
+echo "fin de première boucle"
 index=0
 for sha in $api_shas;
 do
@@ -72,16 +72,16 @@ do
     find ../template_modified -type f -name "*README*" -exec rm -f {} +
     total_template_modified_files=$(find ../template_modified -type f | wc -l )
     cd ..
-    tmpfile3=$(mktemp)
-    tmpfile4=$(mktemp)
+    tmpfile1=$(mktemp)
+    tmpfile2=$(mktemp)
 
-    (find template_modified/ -type f | sort | sed 's|template_modified/||') > "$tmpfile3"
+    (find template_modified/ -type f | sort | sed 's|template_modified/||') > "$tmpfile1"
 
-    (find project/ -type f | sort | sed 's|project/||') > "$tmpfile4"
+    (find project/ -type f | sort | sed 's|project/||') > "$tmpfile2"
 
-    common_files2=$(comm -12 "$tmpfile3" "$tmpfile4" | wc -l)
+    common_files=$(comm -12 "$tmpfile1" "$tmpfile2" | wc -l)
 
-    ratio=$(echo "scale=4; $common_files2 / $total_template_modified_files" | bc)
+    ratio=$(echo "scale=4; $common_files / $total_template_modified_files" | bc)
     ratio_percent=$(printf "%.0f" "$(echo "$ratio * 100" | bc)")
 
     if [ "$ratio_percent" -gt "$ratioThreshold" ] || [ "$ratio_percent" -eq "$ratioThreshold" ]; then
@@ -97,7 +97,7 @@ do
         if [ $sum -lt "$minSum" ] || [ $sum -eq "$minSum" ]; then
             minSum=$sum
             wantedSha=$sha
-        fi    
+        fi
     fi
 
     cd template/ || return
