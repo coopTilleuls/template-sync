@@ -68,7 +68,7 @@ do
     find ../template_modified -type f -name "*.lock" -exec rm -f {} +
     find ../template_modified -type f -name "*-lock*" -exec rm -f {} +
     find ../template_modified -type d -name ".git" -exec rm -rf {} +
-    find ../template_modified -type f -name "*.json" -exec rm -f {} +
+#    find ../template_modified -type f -name "*.json" -exec rm -f {} +
     find ../template_modified -type f -name "*README*" -exec rm -f {} +
     total_template_modified_files=$(find ../template_modified -type f | wc -l )
     cd ..
@@ -104,3 +104,45 @@ do
 done
 
 echo Le commit origine est "$wantedSha"
+
+# METHOD USING git apply 
+# patch=$(mktemp)
+# 
+# git checkout main
+# 
+# git diff "$wantedSha" > "$patch"
+# 
+# git 
+# 
+# cd "$project_dir" || return
+# git apply "$patch" --ignore-space-change --ignore-whitespace --whitespace=fix -C1 --reject
+# git add --intent-to-add .
+# git apply -3 "$patch"
+
+# METHOD USING cherry-pick the squashed commit
+git checkout main
+
+git switch -c template-squash
+echo "Enter the message for the commit which is gonna be cherry picked on your project"
+read -r message
+
+git reset --soft "$wantedSha" && git commit -m "$message"
+
+squash_commit=$(git rev-parse HEAD)
+
+cd "$project_dir" || return
+
+git remote add template "$temp_dir"/template
+
+git fetch template template-squash
+
+git cherry-pick "$squash_commit"
+
+# testing with diff command
+# git checkout "$wantedSha"
+
+# diff -Nau . "$project_dir" > "$patch"
+
+# cd "$project_dir" || return
+
+# patch --merge -p1 < "$patch"
