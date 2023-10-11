@@ -40,6 +40,7 @@ do
     (find project/ -type f | sort | sed 's|project/||') > "$tmpfile2"
 
     common_files=$(comm -12 "$tmpfile1" "$tmpfile2" | wc -l)
+    rm "$tmpfile1" "$tmpfile2"
 
     ratio=$(echo "scale=4; $common_files / $total_template_modified_files" | bc)
     ratio_percent=$(printf "%.0f" "$(echo "$ratio * 100" | bc)")
@@ -80,6 +81,7 @@ do
     (find project/ -type f | sort | sed 's|project/||') > "$tmpfile2"
 
     common_files=$(comm -12 "$tmpfile1" "$tmpfile2" | wc -l)
+    rm "$tmpfile1" "$tmpfile2"
 
     ratio=$(echo "scale=4; $common_files / $total_template_modified_files" | bc)
     ratio_percent=$(printf "%.0f" "$(echo "$ratio * 100" | bc)")
@@ -137,6 +139,12 @@ git remote add template "$temp_dir"/template
 git fetch template template-squash
 
 git cherry-pick "$squash_commit"
+
+git remote rm template
+
+git branch -D template-squash
+
+rm -rf "$temp_dir"
 
 # testing with diff command
 # git checkout "$wantedSha"
