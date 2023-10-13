@@ -138,7 +138,7 @@ git remote add template "$temp_dir"/template
 
 git fetch template template-squash
 
-git cherry-pick "$squash_commit"
+git cherry-pick -Xrename-threshold=20% "$squash_commit"
 
 git remote rm template
 
