@@ -1,5 +1,36 @@
 #!/bin/sh
 
+url=""
+threshold=20
+debug=false
+debug_log=""
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --threshold=*)
+      threshold="${1#*=}"
+      ;;
+    --debug)
+      debug=true
+      ;;
+    *)
+      if [ -z "$url" ]; then
+        url="$1"
+      else
+        echo "Argument non reconnu : $1"
+        exit 1
+      fi
+      ;;
+  esac
+  shift
+done
+
+if "$debug"; then
+    exec 3>&1
+else
+    exec 3>/dev/null
+fi
+
 project_dir=$(pwd)
 
 temp_dir=$(mktemp -d)
@@ -9,13 +40,11 @@ mkdir template
 mkdir project
 mkdir template_modified
 
-if [ -z "$1" ]; then
-echo Missing first argument: url of the template repository
-exit 1
-fi
+git clone "$url" template/ >&3 2>&3
+exit 0
+git clone "$url" template/ "$debug_log"
 
-git clone "$1" template/ > /dev/null 2>&1
-git clone "$project_dir" project/ > /dev/null 2>&1
+git clone "$project_dir" project/ "$debug_log"
 
 cd template/ || return
 api_shas=$(git log --pretty=format:"%H")
@@ -23,7 +52,7 @@ api_shas=$(git log --pretty=format:"%H")
 index=0
 for sha in $api_shas;
 do
-    git checkout "$sha" > /dev/null 2>&1
+    git checkout "$sha" "$debug_log"
     cp -r . ../template_modified
     find ../template_modified -type f -name "*.lock" -exec rm -f {} +
     find ../template_modified -type f -name "*-lock*" -exec rm -f {} +
@@ -59,17 +88,18 @@ do
 done
 
 ratioThreshold=$(echo "$ratioMax - ($ratioMax - $ratioMin) / 3" | bc)
+
 rm -rf ../template_modified/*
-echo "fin de première boucle"
+
 index=0
 for sha in $api_shas;
 do
-    git checkout "$sha" > /dev/null 2>&1
+    git checkout "$sha" "$debug_log"
     cp -r . ../template_modified
     find ../template_modified -type f -name "*.lock" -exec rm -f {} +
     find ../template_modified -type f -name "*-lock*" -exec rm -f {} +
     find ../template_modified -type d -name ".git" -exec rm -rf {} +
-#    find ../template_modified -type f -name "*.json" -exec rm -f {} +
+    find ../template_modified -type f -name "*.json" -exec rm -f {} +
     find ../template_modified -type f -name "*README*" -exec rm -f {} +
     total_template_modified_files=$(find ../template_modified -type f | wc -l )
     cd ..
@@ -105,56 +135,28 @@ do
     cd template/ || return
 done
 
-echo Le commit origine est "$wantedSha"
+echo Found targeted commit: "$wantedSha"
 
-# METHOD USING git apply 
-# patch=$(mktemp)
-# 
-# git checkout main
-# 
-# git diff "$wantedSha" > "$patch"
-# 
-# git 
-# 
-# cd "$project_dir" || return
-# git apply "$patch" --ignore-space-change --ignore-whitespace --whitespace=fix -C1 --reject
-# git add --intent-to-add .
-# git apply -3 "$patch"
+git checkout main "$debug_log"
 
-# METHOD USING cherry-pick the squashed commit
-git checkout main
+git switch -c template-squash "$debug_log"
+# echo "Enter the message for the commit which is gonna be cherry picked on your project"
+# read -r message
 
-git switch -c template-squash
-echo "Enter the message for the commit which is gonna be cherry picked on your project"
-read -r message
-
-git reset --soft "$wantedSha" && git commit -m "$message"
+git reset --soft "$wantedSha" && git commit -m "squashed commit" "$debug_log"
 
 squash_commit=$(git rev-parse HEAD)
 
 cd "$project_dir" || return
 
-git remote add template "$temp_dir"/template
+git remote add template "$temp_dir"/template "$debug_log"
 
-git fetch template template-squash
+git fetch template template-squash "$debug_log"
 
-if [ -z "$2" ]; then
-    git cherry-pick -Xrename-threshold=20% "$squash_commit"
-else
-    git cherry-pick -Xrename-threshold="$2"% "$squash_commit"
-fi
+git cherry-pick -Xrename-threshold="$threshold"% "$squash_commit"
 
-git remote rm template
+git remote rm template "$debug_log"
 
-git branch -D template-squash
+git branch -D template-squash "$debug_log"
 
 rm -rf "$temp_dir"
-
-# testing with diff command
-# git checkout "$wantedSha"
-
-# diff -Nau . "$project_dir" > "$patch"
-
-# cd "$project_dir" || return
-
-# patch --merge -p1 < "$patch"
