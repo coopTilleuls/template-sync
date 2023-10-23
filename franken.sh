@@ -28,9 +28,7 @@ if "$debug"; then
   exec 3>&1
 else
   exec 3>/dev/null 
-
 fi
-exec 2>&3
 
 project_dir=$(pwd)
 temp_dir=$(mktemp -d)
@@ -40,10 +38,17 @@ mkdir template
 mkdir project
 mkdir template_modified
 
-git clone "$url" template/ >&3
-git clone "$url" template/ >&3
+git_template_sync() {
+  if [ "$debug" = true ]; then
+    git "$@"  # Exécution de la commande Git en mode debug
+  else
+    git "$@" 1>&3 2>&3  # Redirection vers /dev/null en mode non-debug
+  fi
+}
 
-git clone "$project_dir" project/ >&3
+git_template_sync clone "$url" template/
+
+git_template_sync clone "$project_dir" project/
 
 cd template/ || return
 api_shas=$(git log --pretty=format:"%H")
@@ -51,7 +56,7 @@ api_shas=$(git log --pretty=format:"%H")
 index=0
 for sha in $api_shas;
 do
-    git checkout "$sha" >&3
+    git_template_sync checkout "$sha"
     cp -r . ../template_modified
     find ../template_modified -type f -name "*.lock" -exec rm -f {} +
     find ../template_modified -type f -name "*-lock*" -exec rm -f {} +
@@ -93,7 +98,7 @@ rm -rf ../template_modified/*
 index=0
 for sha in $api_shas;
 do
-    git checkout "$sha" >&3
+    git_template_sync checkout "$sha"
     cp -r . ../template_modified
     find ../template_modified -type f -name "*.lock" -exec rm -f {} +
     find ../template_modified -type f -name "*-lock*" -exec rm -f {} +
@@ -136,26 +141,26 @@ done
 
 echo Found targeted commit: "$wantedSha"
 
-git checkout main >&3
+git_template_sync checkout main
 
-git switch -c template-squash >&3
+git_template_sync switch -c template-squash
 # echo "Enter the message for the commit which is gonna be cherry picked on your project"
 # read -r message
 
-git reset --soft "$wantedSha" && git commit -m "squashed commit" >&3
+git reset --soft "$wantedSha" && git_template_sync commit -m "squashed commit"
 
 squash_commit=$(git rev-parse HEAD)
 
 cd "$project_dir" || return
 
-git remote add template "$temp_dir"/template >&3
+git_template_sync remote add template "$temp_dir"/template
 
-git fetch template template-squash >&3
+git_template_sync fetch template template-squash
 
 git cherry-pick -Xrename-threshold="$threshold"% "$squash_commit"
 
-git remote rm template >&3
+git_template_sync remote rm template
 
-git branch -D template-squash >&3
+git_template_sync branch -D template-squash
 
 rm -rf "$temp_dir"
