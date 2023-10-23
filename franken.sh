@@ -40,9 +40,9 @@ mkdir template_modified
 
 git_template_sync() {
   if [ "$debug" = true ]; then
-    git "$@"  # Exécution de la commande Git en mode debug
+    git "$@"
   else
-    git "$@" 1>&3 2>&3  # Redirection vers /dev/null en mode non-debug
+    git "$@" 1>&3 2>&3
   fi
 }
 
@@ -160,7 +160,5 @@ git_template_sync fetch template template-squash
 git cherry-pick -Xrename-threshold="$threshold"% "$squash_commit"
 
 git_template_sync remote rm template
-
-git_template_sync branch -D template-squash
 
 rm -rf "$temp_dir"
