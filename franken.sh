@@ -3,7 +3,6 @@
 url=""
 threshold=20
 debug=false
-debug_log=""
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -26,13 +25,14 @@ while [ "$#" -gt 0 ]; do
 done
 
 if "$debug"; then
-    exec 3>&1
+  exec 3>&1
 else
-    exec 3>/dev/null
+  exec 3>/dev/null 
+
 fi
+exec 2>&3
 
 project_dir=$(pwd)
-
 temp_dir=$(mktemp -d)
 cd "$temp_dir" || return
 
@@ -40,11 +40,10 @@ mkdir template
 mkdir project
 mkdir template_modified
 
-git clone "$url" template/ >&3 2>&3
-exit 0
-git clone "$url" template/ "$debug_log"
+git clone "$url" template/ >&3
+git clone "$url" template/ >&3
 
-git clone "$project_dir" project/ "$debug_log"
+git clone "$project_dir" project/ >&3
 
 cd template/ || return
 api_shas=$(git log --pretty=format:"%H")
@@ -52,7 +51,7 @@ api_shas=$(git log --pretty=format:"%H")
 index=0
 for sha in $api_shas;
 do
-    git checkout "$sha" "$debug_log"
+    git checkout "$sha" >&3
     cp -r . ../template_modified
     find ../template_modified -type f -name "*.lock" -exec rm -f {} +
     find ../template_modified -type f -name "*-lock*" -exec rm -f {} +
@@ -94,7 +93,7 @@ rm -rf ../template_modified/*
 index=0
 for sha in $api_shas;
 do
-    git checkout "$sha" "$debug_log"
+    git checkout "$sha" >&3
     cp -r . ../template_modified
     find ../template_modified -type f -name "*.lock" -exec rm -f {} +
     find ../template_modified -type f -name "*-lock*" -exec rm -f {} +
@@ -137,26 +136,26 @@ done
 
 echo Found targeted commit: "$wantedSha"
 
-git checkout main "$debug_log"
+git checkout main >&3
 
-git switch -c template-squash "$debug_log"
+git switch -c template-squash >&3
 # echo "Enter the message for the commit which is gonna be cherry picked on your project"
 # read -r message
 
-git reset --soft "$wantedSha" && git commit -m "squashed commit" "$debug_log"
+git reset --soft "$wantedSha" && git commit -m "squashed commit" >&3
 
 squash_commit=$(git rev-parse HEAD)
 
 cd "$project_dir" || return
 
-git remote add template "$temp_dir"/template "$debug_log"
+git remote add template "$temp_dir"/template >&3
 
-git fetch template template-squash "$debug_log"
+git fetch template template-squash >&3
 
 git cherry-pick -Xrename-threshold="$threshold"% "$squash_commit"
 
-git remote rm template "$debug_log"
+git remote rm template >&3
 
-git branch -D template-squash "$debug_log"
+git branch -D template-squash >&3
 
 rm -rf "$temp_dir"
