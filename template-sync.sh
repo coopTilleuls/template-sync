@@ -16,7 +16,7 @@ while [ "$#" -gt 0 ]; do
       if [ -z "$url" ]; then
         url="$1"
       else
-        echo "Argument non reconnu : $1"
+        echo "Unknown argument : $1"
         exit 1
       fi
       ;;
