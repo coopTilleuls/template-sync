@@ -13,18 +13,15 @@ jobs:
         steps:
             - name: Checkout Code
               uses: actions/checkout@v4
-            
-            - name: Create template from API Platform
-              run: git clone https://github.com/api-platform/api-platform api-template/
+        
             - name: Create an existing project
               run: |
                     git clone https://github.com/api-platform/api-platform project/
                     cd project/
-                    pwd
                     git reset --hard da8b1bac32b13abeb4a3c8b32a6449f0486f904c 
 
             - name: Run Script
               run:
-                ./template-sync.sh api-template --debug
+                ./template-sync.sh https://github.com/api-platform/api-platform --debug
             
             
