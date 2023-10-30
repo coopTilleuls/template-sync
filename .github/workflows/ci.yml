@@ -24,7 +24,10 @@ jobs:
             #   run: |
             #     cd project/
             #     .././template-sync.sh https://github.com/api-platform/api-platform --debug
-
+            - name: Identification for git
+              run: |
+                    git config --global user.email "your_email@example.com"
+                    git config --global user.name "Your Name"   
             - name: Run test
               run: ./test.sh
 
