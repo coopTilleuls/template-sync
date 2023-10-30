@@ -50,22 +50,8 @@ git_template_sync() {
   fi
 }
 
-git_template_sync clone "$url" template/
-
-git_template_sync clone "$project_dir" project/
-
-cd template/ || return
-
-if [ -n "$commit" ]; then
-  git_template_sync reset --hard "$commit"
-fi
-
-api_shas=$(git log --pretty=format:"%H")
-
-index=0
-for sha in $api_shas;
-do
-    git_template_sync checkout "$sha"
+estimate_similarity_index() {
+  git_template_sync checkout "$sha"
     cp -r . ../template_modified
     find ../template_modified -type f -name "*.lock" -exec rm -f {} +
     find ../template_modified -type f -name "*-lock*" -exec rm -f {} +
@@ -86,6 +72,24 @@ do
 
     ratio=$(echo "scale=4; $common_files / $total_template_modified_files" | bc)
     ratio_percent=$(printf "%.0f" "$(echo "$ratio * 100" | bc)")
+}
+
+git_template_sync clone "$url" template/
+
+git_template_sync clone "$project_dir" project/
+
+cd template/ || return
+
+if [ -n "$commit" ]; then
+  git_template_sync reset --hard "$commit"
+fi
+
+api_shas=$(git log --pretty=format:"%H")
+
+index=0
+for sha in $api_shas;
+do
+    estimate_similarity_index
 
     if [ "$index" -eq 0 ]; then
         ratioMax=$ratio_percent
@@ -107,27 +111,7 @@ rm -rf ../template_modified/*
 index=0
 for sha in $api_shas;
 do
-    git_template_sync checkout "$sha"
-    cp -r . ../template_modified
-    find ../template_modified -type f -name "*.lock" -exec rm -f {} +
-    find ../template_modified -type f -name "*-lock*" -exec rm -f {} +
-    find ../template_modified -type d -name ".git" -exec rm -rf {} +
-    find ../template_modified -type f -name "*.json" -exec rm -f {} +
-    find ../template_modified -type f -name "*README*" -exec rm -f {} +
-    total_template_modified_files=$(find ../template_modified -type f | wc -l )
-    cd ..
-    tmpfile1=$(mktemp)
-    tmpfile2=$(mktemp)
-
-    (find template_modified/ -type f | sort | sed 's|template_modified/||') > "$tmpfile1"
-
-    (find project/ -type f | sort | sed 's|project/||') > "$tmpfile2"
-
-    common_files=$(comm -12 "$tmpfile1" "$tmpfile2" | wc -l)
-    rm "$tmpfile1" "$tmpfile2"
-
-    ratio=$(echo "scale=4; $common_files / $total_template_modified_files" | bc)
-    ratio_percent=$(printf "%.0f" "$(echo "$ratio * 100" | bc)")
+    estimate_similarity_index
 
     if [ "$ratio_percent" -gt "$ratioThreshold" ] || [ "$ratio_percent" -eq "$ratioThreshold" ]; then
         diff=$(git diff --shortstat --no-index --diff-filter=d -- project template_modified)
