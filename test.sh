@@ -11,7 +11,7 @@ cd project/ || return
 git reset --hard b5710da
 
 # Run the script
-"$current_dir"/template-sync.sh https://github.com/dunglas/symfony-docker
+"$current_dir"/template-sync.sh https://github.com/dunglas/symfony-docker --debug
 
 # Check if docker directory has been replaced by frankenphp directory as intended
 if [ -d "frankenphp" ] && [ ! -d "docker"  ]; then
