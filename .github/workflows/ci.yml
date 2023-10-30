@@ -25,5 +25,6 @@ jobs:
 
             - name: Run Script
               run:
-                ./template-sync.sh api-template
+                ./template-sync.sh api-template --debug
+            
             
