@@ -3,6 +3,7 @@
 url=""
 threshold=20
 debug=false
+commit=""
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -11,6 +12,9 @@ while [ "$#" -gt 0 ]; do
       ;;
     --debug)
       debug=true
+      ;;
+    --commit=*)
+      commit="${1#*=}"
       ;;
     *)
       if [ -z "$url" ]; then
@@ -51,6 +55,11 @@ git_template_sync clone "$url" template/
 git_template_sync clone "$project_dir" project/
 
 cd template/ || return
+
+if [ -n "$commit" ]; then
+  git_template_sync reset --hard "$commit"
+fi
+
 api_shas=$(git log --pretty=format:"%H")
 
 index=0
