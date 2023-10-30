@@ -1,4 +1,4 @@
-# template sync
+# Template Sync
 A script to easily update a template based project
 
 ## Presentation
