@@ -24,6 +24,8 @@ jobs:
 
             - name: Run Script
               run: |
+                pwd 
+                exit 0
                 cd ..
                 sh template-sync.sh api-template
             
