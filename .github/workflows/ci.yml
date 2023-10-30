@@ -24,9 +24,10 @@ jobs:
                     git reset --hard da8b1bac32b13abeb4a3c8b32a6449f0486f904c 
 
             - name: Run Script
-              run: |
-                pwd 
-                exit 0
+              run: | 
                 cd ..
+                pwd
+                ls
+                exit 0
                 sh template-sync.sh api-template
             
