@@ -15,7 +15,7 @@ jobs:
               uses: actions/checkout@v4
             
             - name: Create template from API Platform
-              run: git clone https://github.com/api-platform/api-platform api-template
+              run: git clone https://github.com/api-platform/api-platform api-template/
             - name: Create an existing project
               run: |
                     git clone https://github.com/api-platform/api-platform project/
