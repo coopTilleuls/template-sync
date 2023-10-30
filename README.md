@@ -22,3 +22,6 @@ E.g. `./template-sync.sh https://github.com/dunglas/symfony-docker --threshold=3
 5. When conflicts are resolved, don't forget to run `git cherry-pick --continue`
 If for any reason you are not satisfied with the result of the script you just have to run `git cherry-pick --abort`
 to rollback before the execution of the script.
+
+## Authors
+[Emmanuel Barat](https://github.com/mano-lis) and [Raphael Marchese](https://github.com/Raphael-Marchese)
