@@ -17,10 +17,10 @@ jobs:
             - name: Create template from API Platform
               run: git clone https://github.com/api-platform/api-platform api-template
             - name: Create an existing project
-              run: git clone --branch da8b1bac32b13abeb4a3c8b32a6449f0486f904c https://github.com/api-platform/api-platform project
+              run: git clone https://github.com/api-platform/api-platform/tree/da8b1bac32b13abeb4a3c8b32a6449f0486f904c project
 
             - name: Run Script
-              run: |
+              run: 
                 cd project 
                 sh template-sync.sh api-template
             
