@@ -25,7 +25,6 @@ jobs:
 
             - name: Run Script
               run: | 
-                cd ..
                 pwd
                 ls
                 exit 0
