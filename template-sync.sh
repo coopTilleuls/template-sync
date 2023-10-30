@@ -139,7 +139,11 @@ do
     cd template/ || return
 done
 
-echo Found targeted commit: "$wantedSha"
+echo "The targeted commit in the template is :"
+
+git --no-pager show --no-patch "$wantedSha"
+
+printf "\n\n"
 
 git_template_sync checkout main
 
