@@ -22,7 +22,7 @@ jobs:
 
             - name: Run Script
               run: |
-                pwd
-                ./template-sync.sh https://github.com/api-platform/api-platform --debug
+                cd project/
+                .././template-sync.sh https://github.com/api-platform/api-platform --debug
 
             
