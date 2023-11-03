@@ -16,7 +16,6 @@ If you have some conflicts, resolve them and run `git cherry-pick --continue`.
 * [GitLab Templates](https://docs.gitlab.com/ee/user/project/pages/getting_started/pages_new_project_template.html)
 * [Symfony Docker](https://github.com/dunglas/symfony-docker)
 * [API Platform Distribution](https://github.com/api-platform/api-platform)
-* [Next.js starters](https://vercel.com/templates/next.js) (templates in monorepo are not working yet, PR welcome!)
 
 ## How it works
 
