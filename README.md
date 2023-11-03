@@ -8,7 +8,7 @@ Template Sync will import the changes made to the template to your project in a 
 ```console
 curl -sSL https://raw.githubusercontent.com/mano-lis/template-sync/main/template-sync.sh | sh -s -- <url-of-the-template>
 ```
-If you have some conflicts resolve them and run `git cherry-pick --continue`.
+If you have some conflicts, resolve them and run `git cherry-pick --continue`.
 
 ## Supported Templates
 
