@@ -1,0 +1,22 @@
+on:
+    push:
+    pull_request:
+      branches: main
+jobs:
+    test:
+        name: Simple Test
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: read
+            statuses: write
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+            - name: Identification for git
+              run: |
+                    git config --global user.email "your_email@example.com"
+                    git config --global user.name "Your Name"   
+            - name: Run test
+              run: ./test.sh
+            
