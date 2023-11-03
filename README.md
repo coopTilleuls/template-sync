@@ -11,7 +11,7 @@ Therefore you just have to resolve conflicts and work is done!
 Copy template-sync.sh at the root of your project
 
 2. The only mandatory argument is the GitHub or gitlab URL of your template.
-E.g. `./template-sync.sh https://github.com/dunglas/symfony-docker`
+E.g. `./template-sync.sh https://github.com/dunglas/symfony-docker`. If you want to synchronize your project with a specific version of the template, you can specify the commit you are targeting by adding `--commit=SHA`.
 
 3. In case some files are renamed or moved in the template history, you can modify the threshold where
 git thinks two files are identical. Default value for this script is 20% (git's default value is 50%).
