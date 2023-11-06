@@ -4,6 +4,7 @@ url=""
 threshold=20
 debug=false
 commit=""
+directory=""
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -16,6 +17,9 @@ while [ "$#" -gt 0 ]; do
     --commit=*)
       commit="${1#*=}"
       ;;
+    --directory=*)
+      directory="${1#*=}"
+      ;;  
     *)
       if [ -z "$url" ]; then
         url="$1"
@@ -38,6 +42,7 @@ project_dir=$(pwd)
 temp_dir=$(mktemp -d)
 cd "$temp_dir" || return
 
+mkdir temp
 mkdir template
 mkdir project
 mkdir template_modified
@@ -92,11 +97,19 @@ estimate_similarity_index() {
   ratio_percent=$(printf "%.0f" "$(echo "$ratio * 100" | bc)")
 }
 
-git_template_sync clone "$url" template/
-
 git_template_sync clone "$project_dir" project/
 
-cd template/ || return
+if [ -n "$directory" ]; then
+  git_template_sync clone "$url" temp/
+  cd temp/ || return
+  git_template_sync subtree split -P "$directory" -b branch/template
+  cd ../template/ || return
+  git_template_sync init
+  git_template_sync pull ../temp/ branch/template
+else 
+  git_template_sync clone "$url" template/
+  cd template/ || return
+fi
 
 if [ -n "$commit" ]; then
   git_template_sync reset --hard "$commit"
@@ -123,6 +136,7 @@ do
 done
 
 ratioThreshold=$(echo "$ratioMax - ($ratioMax - $ratioMin) / 3" | bc)
+echo "$ratioThreshold"
 
 rm -rf ../template_modified/*
 rm -rf ../project_modified/*
@@ -140,8 +154,10 @@ do
         if [ $index -eq 0 ]; then
             minSum=$sum
             wantedSha=$sha
-            index=$((index + 1))
         fi
+        echo "$minSum"
+        echo "$sum"
+        echo "$wantedSha"
         if [ $sum -lt "$minSum" ] || [ $sum -eq "$minSum" ]; then
             minSum=$sum
             wantedSha=$sha
@@ -149,6 +165,7 @@ do
     fi
 
     cd template/ || return
+    index=$((index + 1))
 done
 
 echo "The targeted commit in the template is :"
