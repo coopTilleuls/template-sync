@@ -50,24 +50,41 @@ git_template_sync() {
   fi
 }
 
+removing_useless_files() {
+  directory="$1"
+    if [ -d "$directory" ]; then
+        find "$directory" -type f -name "*.lock" -exec rm -f {} +
+        find "$directory" -type f -name "*-lock*" -exec rm -f {} +
+        find "$directory" -type d -name ".git" -exec rm -rf {} +
+        find "$directory" -type f -name "*.json" -exec rm -f {} +
+        find "$directory" -type f -name "*.md" -exec rm -f {} +
+        find "$directory" -type f -name "*README*" -exec rm -f {} +
+    else
+        echo "Error while sorting useless files"
+        exit 1
+    fi
+}
+
 estimate_similarity_index() {
   git_template_sync checkout "$sha"
     cp -r . ../template_modified
-    find ../template_modified -type f -name "*.lock" -exec rm -f {} +
-    find ../template_modified -type f -name "*-lock*" -exec rm -f {} +
-    find ../template_modified -type d -name ".git" -exec rm -rf {} +
-    find ../template_modified -type f -name "*.json" -exec rm -f {} +
-    find ../template_modified -type f -name "*README*" -exec rm -f {} +
-    total_template_modified_files=$(find ../template_modified -type f | wc -l )
+    cp -r ../project ../project_modified
+
+    removing_useless_files "../template_modified"
+    total_template_modified_files=$(find "../template_modified" -type f | wc -l)
+
+    removing_useless_files "../project_modified"
+    
     cd ..
     tmpfile1=$(mktemp)
     tmpfile2=$(mktemp)
 
-    (find template_modified/ -type f | sort | sed 's|template_modified/||') > "$tmpfile1"
+    (find template_modified/ -type f | sort | sed -e 's|template_modified/||' -e 's/\.yml/\.yaml/') > "$tmpfile1"
 
-    (find project/ -type f | sort | sed 's|project/||') > "$tmpfile2"
+    (find project_modified/ -type f | sort | sed -e 's|project_modified/||' -e 's/\.yml/\.yaml/') > "$tmpfile2"
 
     common_files=$(comm -12 "$tmpfile1" "$tmpfile2" | wc -l)
+  
     rm "$tmpfile1" "$tmpfile2"
 
     ratio=$(echo "scale=4; $common_files / $total_template_modified_files" | bc)
