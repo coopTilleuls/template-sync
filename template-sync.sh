@@ -41,6 +41,7 @@ cd "$temp_dir" || return
 mkdir template
 mkdir project
 mkdir template_modified
+mkdir project_modified
 
 git_template_sync() {
   if [ "$debug" = true ]; then
@@ -67,28 +68,28 @@ removing_useless_files() {
 
 estimate_similarity_index() {
   git_template_sync checkout "$sha"
-    cp -r . ../template_modified
-    cp -r ../project ../project_modified
+  cp -r . ../template_modified
+  cp -r ../project ../project_modified
 
-    removing_useless_files "../template_modified"
-    total_template_modified_files=$(find "../template_modified" -type f | wc -l)
+  removing_useless_files "../template_modified"
+  total_template_modified_files=$(find "../template_modified" -type f | wc -l)
 
-    removing_useless_files "../project_modified"
-    
-    cd ..
-    tmpfile1=$(mktemp)
-    tmpfile2=$(mktemp)
-
-    (find template_modified/ -type f | sort | sed -e 's|template_modified/||' -e 's/\.yml/\.yaml/') > "$tmpfile1"
-
-    (find project_modified/ -type f | sort | sed -e 's|project_modified/||' -e 's/\.yml/\.yaml/') > "$tmpfile2"
-
-    common_files=$(comm -12 "$tmpfile1" "$tmpfile2" | wc -l)
+  removing_useless_files "../project_modified"
   
-    rm "$tmpfile1" "$tmpfile2"
+  cd ..
+  tmpfile1=$(mktemp)
+  tmpfile2=$(mktemp)
 
-    ratio=$(echo "scale=4; $common_files / $total_template_modified_files" | bc)
-    ratio_percent=$(printf "%.0f" "$(echo "$ratio * 100" | bc)")
+  (find template_modified/ -type f | sort | sed -e 's|template_modified/||' -e 's/\.yml/\.yaml/') > "$tmpfile1"
+
+  (find project_modified/ -type f | sort | sed -e 's|project_modified/||' -e 's/\.yml/\.yaml/') > "$tmpfile2"
+
+  common_files=$(comm -12 "$tmpfile1" "$tmpfile2" | wc -l)
+
+  rm "$tmpfile1" "$tmpfile2"
+
+  ratio=$(echo "scale=4; $common_files / $total_template_modified_files" | bc)
+  ratio_percent=$(printf "%.0f" "$(echo "$ratio * 100" | bc)")
 }
 
 git_template_sync clone "$url" template/
@@ -124,6 +125,7 @@ done
 ratioThreshold=$(echo "$ratioMax - ($ratioMax - $ratioMin) / 3" | bc)
 
 rm -rf ../template_modified/*
+rm -rf ../project_modified/*
 
 index=0
 for sha in $api_shas;
