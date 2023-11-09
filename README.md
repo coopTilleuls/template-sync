@@ -40,11 +40,11 @@ curl -sSL https://raw.githubusercontent.com/mano-lis/template-sync/main/template
 1. Go to your project repository (we recommend to create a new branch)
 Copy template-sync.sh at the root of your project
 
-2. The only mandatory argument is the GitHub or gitlab URL of your template.
-E.g. `./template-sync.sh https://github.com/dunglas/symfony-docker`. If you want to synchronize your project with a specific version of the template, you can specify the commit you are targeting by adding `--commit=SHA`.
+2. The only mandatory argument is the GitHub or GitLab URL of your template.
+E.g. `./template-sync.sh https://github.com/dunglas/symfony-docker`. If you want to synchronize your project with a specific version of the template, you can specify the commit you are targeting by adding `--commit=<commit SHA>`.
 
 3. In case some files are renamed or moved in the template history, you can modify the threshold where
-git thinks two files are identical. Default value for this script is 20% (git's default value is 50%).
+git considers two files as identical. Default value for this script is 20% (git's default value is 50%).
 E.g. `./template-sync.sh https://github.com/dunglas/symfony-docker --threshold=30`
 
 4. You can run the script in debug mode by adding the `--debug` flag.
