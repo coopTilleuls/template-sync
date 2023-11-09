@@ -24,7 +24,7 @@ This script identifies a commit in the template history which is the closest one
 Then it squashes all the updates into a commit which will be cherry-picked on the top of your working branch.
 Therefore you just have to resolve conflicts and work is done!
 
-### Monorepo containing multpile templates
+### Monorepo containing multiple templates
 
 Using this kind of templates, you have to specify the subdirectory where your template is with the `--directory` flag.
 
@@ -41,14 +41,15 @@ Copy template-sync.sh at the root of your project
 
 2. The only mandatory argument is the GitHub or gitlab URL of your template.
 E.g. `./template-sync.sh https://github.com/dunglas/symfony-docker`. If you want to synchronize your project with a specific version of the template, you can specify the commit you are targeting by adding `--commit=SHA`.
+⚠️ Not yet working with monorepo
 
-3. In case some files are renamed or moved in the template history, you can modify the threshold where
+4. In case some files are renamed or moved in the template history, you can modify the threshold where
 git thinks two files are identical. Default value for this script is 20% (git's default value is 50%).
 E.g. `./template-sync.sh https://github.com/dunglas/symfony-docker --threshold=30`
 
-4. You can run the script in debug mode by adding the `--debug` flag.
+5. You can run the script in debug mode by adding the `--debug` flag.
 
-5. If for any reason you are not satisfied with the result of the script you just have to run `git cherry-pick --abort` to rollback before the execution of the script.
+6. If for any reason you are not satisfied with the result of the script you just have to run `git cherry-pick --abort` to rollback before the execution of the script.
 
 
 *Created by [Emmanuel Barat](https://github.com/mano-lis) and [Raphael Marchese](https://github.com/Raphael-Marchese)*
