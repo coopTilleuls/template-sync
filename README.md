@@ -24,7 +24,7 @@ This script identifies a commit in the template history which is the closest one
 Then it squashes all the updates into a commit which will be cherry-picked on the top of your working branch.
 Therefore you just have to resolve conflicts and work is done!
 
-### Monorepo containing multpile templates
+### Monorepo containing multiple templates
 
 Using this kind of templates, you have to specify the subdirectory where your template is with the `--directory` flag.
 
