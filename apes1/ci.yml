@@ -1,0 +1,56 @@
+name: CI
+
+on:
+    push:
+
+jobs:
+    build:
+        name: Docker build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+            - name: Pull images
+              run: docker compose pull
+            - name: Start services
+              run: docker compose up --build -d
+            - name: Wait for services
+              run: |
+                  while status="$(docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" "$(docker compose ps -q php)")"; do
+                    case $status in
+                      starting) sleep 1;;
+                      healthy) exit 0;;
+                      unhealthy) exit 1;;
+                    esac
+                  done
+                  exit 1
+            - name: Check HTTP reachability
+              run: curl http://localhost
+            - name: Check HTTPS reachability
+              run: curl -k https://localhost
+            - name: Test manifest file
+              run: mkdir -p public/build; docker compose exec -T php echo "{}" > public/build/manifest.json
+            - name: Create test database
+              run: docker compose exec -T php bin/console -e test doctrine:database:create
+            - name: Create database schema
+              run: docker compose exec -T php bin/console -e test doctrine:schema:create 
+            - name: Setup Messenger
+              run: docker compose exec -T php bin/console -e test messenger:setup-transports
+            - name: Initializing Fixtures
+              run: docker compose exec -T php bin/console -e test hautelook:fixtures:load --no-interaction --no-bundles
+            - name: Meilisearch indexation
+              run: docker compose exec -T php bin/console -e test app:index-products
+            - name: PHPUnit
+              run: docker compose exec -T php bin/phpunit
+            - name: Doctrine Schema Validator
+              run: docker compose exec -T php bin/console doctrine:schema:validate --skip-sync
+            - name: PHP CS Fixer
+              run: docker compose exec -T php sh -c './vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --format=checkstyle | ./vendor/bin/cs2pr'
+            - name: PHPStan
+              run: docker compose exec -T php ./vendor/bin/phpstan analyse --memory-limit=-1 --error-format=github
+            - name: Twig Linter
+              run: docker compose exec -T php ./vendor/bin/twigcs templates/ --exclude vendor
+            - name: Install eslint
+              run: docker run --rm -w "/usr/app" -v "${PWD}":/usr/app gmolaire/yarn yarn add eslint
+            - name: Run eslint on javascript files
+              run: docker run --rm -w "/usr/app" -v "${PWD}":/usr/app gmolaire/yarn yarn lint

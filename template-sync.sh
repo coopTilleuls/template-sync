@@ -57,14 +57,14 @@ git_template_sync() {
 }
 
 removing_useless_files() {
-  directory="$1"
-    if [ -d "$directory" ]; then
-        find "$directory" -type f -name "*.lock" -exec rm -f {} +
-        find "$directory" -type f -name "*-lock*" -exec rm -f {} +
-        find "$directory" -type d -name ".git" -exec rm -rf {} +
-        find "$directory" -type f -name "*.json" -exec rm -f {} +
-        find "$directory" -type f -name "*.md" -exec rm -f {} +
-        find "$directory" -type f -name "*README*" -exec rm -f {} +
+  path="$1"
+    if [ -d "$path" ]; then
+        find "$path" -type f -name "*.lock" -exec rm -f {} +
+        find "$path" -type f -name "*-lock*" -exec rm -f {} +
+        find "$path" -type d -name ".git" -exec rm -rf {} +
+#        find "$path" -type f -name "*.json" -exec rm -f {} +
+        find "$path" -type f -name "*.md" -exec rm -f {} +
+        find "$path" -type f -name "*README*" -exec rm -f {} +
     else
         echo "Error while sorting useless files"
         exit 1
@@ -74,12 +74,9 @@ removing_useless_files() {
 estimate_similarity_index() {
   git_template_sync checkout "$sha"
   cp -r . ../template_modified
-  cp -r ../project ../project_modified
 
   removing_useless_files "../template_modified"
   total_template_modified_files=$(find "../template_modified" -type f | wc -l)
-
-  removing_useless_files "../project_modified"
   
   cd ..
   tmpfile1=$(mktemp)
@@ -89,15 +86,18 @@ estimate_similarity_index() {
 
   (find project_modified/ -type f | sort | sed -e 's|project_modified/||' -e 's/\.yml/\.yaml/') > "$tmpfile2"
 
-  common_files=$(comm -12 "$tmpfile1" "$tmpfile2" | wc -l)
-
-  rm "$tmpfile1" "$tmpfile2"
+  common_files=$(comm -12 "$tmpfile1" "$tmpfile2" | wc -l) 
 
   ratio=$(echo "scale=4; $common_files / $total_template_modified_files" | bc)
   ratio_percent=$(printf "%.0f" "$(echo "$ratio * 100" | bc)")
+  rm "$tmpfile1" "$tmpfile2"
 }
 
 git_template_sync clone "$project_dir" project/
+cp -r project/* project_modified/
+removing_useless_files "project_modified"
+
+
 
 if [ -n "$directory" ]; then
   git_template_sync clone "$url" temp/
@@ -131,15 +131,13 @@ do
     elif [ "$ratio_percent" -lt "$ratioMin" ]; then
         ratioMin=$ratio_percent
     fi
+
+    rm -rf template_modified/*
     cd template/ || return
     index=$((index + 1))
 done
 
 ratioThreshold=$(echo "$ratioMax - ($ratioMax - $ratioMin) / 3" | bc)
-echo "$ratioThreshold"
-
-rm -rf ../template_modified/*
-rm -rf ../project_modified/*
 
 index=0
 for sha in $api_shas;
@@ -155,22 +153,26 @@ do
             minSum=$sum
             wantedSha=$sha
         fi
-        echo "$minSum"
-        echo "$sum"
-        echo "$wantedSha"
-        if [ $sum -lt "$minSum" ] || [ $sum -eq "$minSum" ]; then
+        if [ $sum -lt "$minSum" ] || [ "$sum" -eq "$minSum" ]; then
             minSum=$sum
             wantedSha=$sha
         fi
+        index=$((index + 1))
     fi
-
+    rm -rf template_modified/*
     cd template/ || return
-    index=$((index + 1))
 done
 
 echo "The targeted commit in the template is :"
 
 git --no-pager show --no-patch "$wantedSha"
+
+
+if [ -n "$directory" ]; then
+  printf "\n\n"
+  echo "As your template comes from the subdirectory of a monorepo,
+  its SHA is different from the monorepo history. If you want to check it, use his name, tag or date to retrieve it." 
+fi
 
 printf "\n\n"
 
@@ -180,7 +182,7 @@ git_template_sync switch -c template-squash
 # echo "Enter the message for the commit which is gonna be cherry picked on your project"
 # read -r message
 
-git reset --soft "$wantedSha" && git_template_sync commit -m "squashed commit"
+git reset --soft "$wantedSha" && git_template_sync commit -m "squashed commit updating template"
 
 squash_commit=$(git rev-parse HEAD)
 
