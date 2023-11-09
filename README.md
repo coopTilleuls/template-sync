@@ -49,7 +49,7 @@ curl -sSL https://raw.githubusercontent.com/mano-lis/template-sync/main/template
 3. In case some files are renamed or moved in the template history, you can modify the threshold where
 git considers two files as identical. Default value for this script is 20% (git's default value is 50%).
 If git is confused and considers files that are not identical to be identical, you can raise this threshold.
-E.g;
+E.g:
 ```console
 curl -sSL https://raw.githubusercontent.com/mano-lis/template-sync/main/template-sync.sh | sh -s -- <url-of-the-template> --threshold=30
 ```
