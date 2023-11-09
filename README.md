@@ -16,12 +16,23 @@ If you have some conflicts, resolve them and run `git cherry-pick --continue`.
 * [GitLab Templates](https://docs.gitlab.com/ee/user/project/pages/getting_started/pages_new_project_template.html)
 * [Symfony Docker](https://github.com/dunglas/symfony-docker)
 * [API Platform Distribution](https://github.com/api-platform/api-platform)
+* [Next.js starters](https://vercel.com/templates/next.js)
 
 ## How it works
 
 This script identifies a commit in the template history which is the closest one to your project.
 Then it squashes all the updates into a commit which will be cherry-picked on the top of your working branch.
 Therefore you just have to resolve conflicts and work is done!
+
+### Monorepo containing multpile templates
+
+Using this kind of templates, you have to specify the subdirectory where your template is with the `--directory` flag.
+
+For example, assume you work on a project base on the template "api-routes" from next starters.
+The main monorepo is vercel/next.js and the template is located in examples/api-routes :
+```console
+curl -sSL https://raw.githubusercontent.com/mano-lis/template-sync/main/template-sync.sh | sh -s -- https://github.com/vercel/next.js --directory=examples/api-routes
+```
 
 ### Advanced
 
