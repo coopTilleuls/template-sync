@@ -153,7 +153,11 @@ do
             minSum=$sum
             wantedSha=$sha
         fi
-        if [ $sum -lt "$minSum" ] || [ "$sum" -eq "$minSum" ]; then
+        if [ -z "$minSum" ]; then
+          echo "Error during the commits sorting process"
+          exit 1
+        fi
+        if [ $sum -lt "$minSum" ] || [ $sum -eq "$minSum" ]; then
             minSum=$sum
             wantedSha=$sha
         fi
