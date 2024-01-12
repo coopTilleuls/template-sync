@@ -6,7 +6,7 @@ Template Sync will import the changes made to the template to your project in a 
 ## Getting Started
 
 ```console
-curl -sSL https://raw.githubusercontent.com/mano-lis/template-sync/main/template-sync.sh | sh -s -- <url-of-the-template>
+curl -sSL https://raw.githubusercontent.com/coopTilleuls/template-sync/main/template-sync.sh | sh -s -- <url-of-the-template>
 ```
 If you have some conflicts, resolve them and run `git cherry-pick --continue`.
 
@@ -32,7 +32,7 @@ the `--directory` flag.
 For example, assume you work on a project base on the template "api-routes" from next starters.
 The main monorepo is vercel/next.js and the template is located in examples/api-routes :
 ```console
-curl -sSL https://raw.githubusercontent.com/mano-lis/template-sync/main/template-sync.sh | sh -s -- https://github.com/vercel/next.js --directory=examples/api-routes
+curl -sSL https://raw.githubusercontent.com/coopTilleuls/template-sync/main/template-sync.sh | sh -s -- https://github.com/vercel/next.js --directory=examples/api-routes
 ```
 
 ### Advanced
@@ -43,7 +43,7 @@ Copy template-sync.sh at the root of your project
 2. The only mandatory argument is the GitHub or GitLab URL of your template but if you want to synchronize your project with a specific version of the template, you can specify the commit you are targeting by adding `--commit=<commit SHA>`.
 E.g. Assume your project is based on dunglas/symfony-docker and you just want to get the improvements of the new php app server [FrankenPHP](https://frankenphp.dev/). Run this command :
 ```console
-curl -sSL https://raw.githubusercontent.com/mano-lis/template-sync/main/template-sync.sh | sh -s -- https://github.com/dunglas/symfony-docker --commit=88f5c19
+curl -sSL https://raw.githubusercontent.com/coopTilleuls/template-sync/main/template-sync.sh | sh -s -- https://github.com/dunglas/symfony-docker --commit=88f5c19
 ```
 
 3. In case some files are renamed or moved in the template history, you can modify the threshold where
@@ -51,7 +51,7 @@ git considers two files as identical. Default value for this script is 20% (git'
 If git is confused and considers files that are not identical to be identical, you can raise this threshold.
 E.g:
 ```console
-curl -sSL https://raw.githubusercontent.com/mano-lis/template-sync/main/template-sync.sh | sh -s -- <url-of-the-template> --threshold=30
+curl -sSL https://raw.githubusercontent.com/coopTilleuls/template-sync/main/template-sync.sh | sh -s -- <url-of-the-template> --threshold=30
 ```
 
 4. You can run the script in debug mode by adding the `--debug` flag.
