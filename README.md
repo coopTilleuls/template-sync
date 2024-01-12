@@ -26,7 +26,7 @@ Therefore you just have to resolve conflicts and work is done!
 
 ### Monorepo containing multiple templates
 
-Using this kind of templates, you have to specify the subdirectory where your template is with 
+Using this kind of templates, you have to specify the subdirectory where your template is with
 the `--directory` flag.
 
 For example, assume you work on a project base on the template "api-routes" from next starters.
